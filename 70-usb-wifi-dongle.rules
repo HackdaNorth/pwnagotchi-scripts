@@ -1,0 +1,8 @@
+
+#MAKE SURE TO CHECK YOUR idVendor and idProduct against yours!! THIS WILL NOT MATCH YOU MUST CHANGE TO YOURS!
+#MAKE SURE YOUR /home/pi/scripts folder exists, and contains your scripts!
+#MAKE SURE YOUR USB DEVICE HAS A DEV PATH. USE udevadm monitor to capture this path.
+#IF You're on rpi0 make a crontab that runs at reboot to run udevadm monitor and capture its output to a file, this way you #can run it without being ssh'd into the system then read it later while ssh'd.
+
+ACTION=="add", SUBSYSTEM=="net", ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="8812", RUN+="/home/pi/scripts/plug-script.sh"
+ACTION=="remove", ENV{DEVPATH}=="/devices/platform/soc/3f980000.usb/usb1/1-1", RUN+="/home/pi/scripts/unplug-script.sh"
