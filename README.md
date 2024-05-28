@@ -17,7 +17,18 @@ Here is the explanation by attrib, "https://www.reddit.com/r/pwnagotchi/comments
 If that comment ever gets removed, I will have no idea what I am doing, so I copy pasted it into Realtek_tut.txt just in case....
 
 ---------
+clone this repo to your pi and move the scripts into the correct locations. Such as usb rules into /etc/udev/rules.d/
+`sudo cp ~/scripts/pwnagotchi-scripts/70-usb-wifi-dongle.rules /etc/udev/rules.d/`
+make them executeable
+`sudo chmod +x ~/scripts/pwnagotchi-scripts/unplug-script.sh `
 
+`sudo chmod +x ~/scripts/pwnagotchi-scripts/plug-script.sh `
+
+reload `udevadm control --reload`
+
+plug in adapter and see if it works!
+
+You can monitor the output of udev with journalctl -f , even filter it with `journalctl | grep -a "plug-script"` or `journalctl | grep -a "unplug-script"`
 
 Realtek driver is 8812au-20210829, see here --> https://github.com/HackdaNorth/8812au-20210629 
 You can clone it from here as well and find more detailed information regarding the original creator and installation instructions. 
