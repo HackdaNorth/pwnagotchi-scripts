@@ -1,0 +1,27 @@
+Yes! I managed to get it working. Just as what u/AlienMajik said, this is the workaround that works with AWUS036AC, although it's a little bit hacky.
+
+This is what I did:
+
+Using the latest jayofelony image (v2.8.9 as time of writing)
+Use the Morrownr driver that u/AlienMajik linked.
+Use the script that puts the device in monitor mode (also mentioned by Majik).
+Remove or comment the dtoverlay=disable-wifi line in your /boot/config.txt (so BOTH onboard and external adapters will work. THIS IS IMPORTANT)
+Change the /etc/pwnagotchi/config.toml line main.iface = "wlan0mon" TO main.iface = "wlan1mon".
+Be sure you've installed 1, 2 and 3 and that you already did 4. Wait for your Pwnagotchi to boot up. Pwnagotchi should be working with your onboard Wifi.
+
+Now plug in your Realtek 8812au adapter. Then try to run it in Monitor mode by using 3.
+
+When this is done, do 5. And restart the Pwnagotchi service like:
+sudo systemctl restart pwnagotchi
+
+...And it should work. At least, it does for me! Now doing this every time you plug in the adapter is a bit annoying. You don't want to login to your Pwnagotchi and do this over all the time. So I made 2 scripts that's getting triggered by udev rules when you plug in and remove the USB dongle. It automatically puts the adapter in monitor mode, changes the config.toml interface line, kills all the interfering services and restarts the pwnagotchi service. When you unplug the adapter, it will change the config.toml again to work with the onboard adapter and restarts the pwnagotchi service again (without doing a system reboot).
+
+Here's the code:
+https://pastebin.com/YYeX5LiM
+
+Create the udev rules file in /etc/udev/rules.d/
+Keep in mind that your DEVPATH and idVendor can be different! If you have problems finding this, let me know.
+
+I have my scripts located at /home/pi/scripts/ but of course this can be different for you. Don't forget to make these files executable or it will not work (chmod +x). I hope this quick write-up helps you out. Good luck!
+
+(I'm well aware that I can improve the scripts a little bit, but I've just finished testing them. Wanted to post here first)
