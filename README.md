@@ -19,10 +19,10 @@ If that comment ever gets removed, I will have no idea what I am doing, so I cop
 ---------
 
 
-Realtek driver is 8812au-20210829-main.zip. 
+Realtek driver is 8812au-20210829, see here --> https://github.com/HackdaNorth/8812au-20210629 
 You can clone it from here as well and find more detailed information regarding the original creator and installation instructions. 
 I've forked it since the original creator removed it and no longer supports monitor mode in the newer verisons. I have not tested them.
 
 Monitor mode script is also included, although it is not needed since the scripts attrib created do the exact same but for pwnagotchi. If you'd like to send the adapter into monitor mode etc without pwnagotchi, just use the monitor mode script and run it after plugging in your adapter and drivers are installed, select ./start_mon.sh [interface of adapter]
 
-https://github.com/HackdaNorth/8812au-20210629
+
