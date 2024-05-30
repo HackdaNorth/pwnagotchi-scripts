@@ -9,7 +9,7 @@ class HomeBase(plugins.Plugin):
     __author__ = '@HackdaNorth'
     __version__ = '0.1.0'
     __license__ = 'GPL3'
-    __description__ = 'Connects to home network for internet when available'
+    __description__ = 'Transfers files to your home base, after finding the connection'
 
     def __init__(self):
         self.ready = 0
