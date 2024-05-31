@@ -29,9 +29,11 @@ class Guarda(plugins.Plugin):
     def on_internet_available(self, agent):
         if not self.ready:
             return
+        self.status = 'waiting'
         _log("Checking connection ...")
         current_ssid = self.get_ssid()
         target_ssid = self.options['ssid']
+        command_run = self.options['command']
         if current_ssid:
             self.status = 'wifi_detected'
               _log(f"Current SSID: {current_ssid} ...")
@@ -49,11 +51,9 @@ class Guarda(plugins.Plugin):
                 self.status = 'Not_connected'
 
     def _execute_commands(self):
-        self.status = 'waiting'
         time.sleep(5)
         _log("Running commands...")
-        process = _run('sudo sh /home/pi/backup.sh')
-        self.status = 'uploading'
+        process = _run(f'sudo sh {self.command}')
         time.sleep(15)
         _log("Sleeping 15 seconds waiting for script execution to finish....")
         process.wait()
@@ -66,10 +66,10 @@ class Guarda(plugins.Plugin):
             ui.set('status', 'Not connected to wifi ...')
         elif self.status == 'wifi_detected':
             ui.set('face', '(ᗒᗨᗕ)')
-            ui.set('status', f'Found home network at {self.network} ...')
+            ui.set('status', f'Found home network ...')
         elif self.status == 'uploading':
             ui.set('face', '(*‿‿*)')
-            ui.set('status', 'We\'re home! Uploading files mode ...')
+            ui.set('status', 'We\'re home! Transfering files  ...')
         elif self.status == 'waiting':
             ui.set('face', '(⊙︿⊙)')
             ui.set('status', 'Waiting for files to finish ...')
