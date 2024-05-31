@@ -8,7 +8,7 @@ import time
 
 class Guarda(plugins.Plugin):
     __author__ = '@HackdaNorth'
-    __version__ = '0.6.0'
+    __version__ = '0.8.0'
     __license__ = 'GPL3'
     __description__ = 'Transfers files to your home base, after finding the connection'
 
