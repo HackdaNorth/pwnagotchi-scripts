@@ -1,9 +1,10 @@
-#Guarda watches for a internet connection, once found, starts transfering files!
+# Guarda watches for a internet connection, once found, starts transfering files!
 import pwnagotchi.plugins as plugins
 import pwnagotchi
 import logging
 import subprocess
 import time
+
 
 class HomeBase(plugins.Plugin):
     __author__ = '@HackdaNorth'
@@ -14,7 +15,6 @@ class HomeBase(plugins.Plugin):
     def __init__(self):
         self.ready = 0
         self.status = ''
-        self.network = ''
         self.current_ssid = ''
 
     def on_loaded(self):
@@ -22,33 +22,34 @@ class HomeBase(plugins.Plugin):
         self.ready = 1
 
     def get_ssid(self):
-        result = subprocess.run(["/usr/sbin/iwgetid", "wlan0", "-r"], capture_output=True, text=True)
+        result = subprocess.run(
+            ["/usr/sbin/iwgetid", "wlan0", "-r"], capture_output=True, text=True)
         return result.stdout.strip()
 
-    def on_internet_available(self,agent):
-       if not self.ready:
-           return
+    def on_internet_available(self, agent):
+        if not self.ready:
+            return
         _log("Checking connection ...")
         current_ssid = self.get_ssid()
         target_ssid = self.options['ssid']
         if current_ssid:
             self.status = 'wifi_detected'
-            _log(f"Current SSID: {current_ssid} ...")
+              _log(f"Current SSID: {current_ssid} ...")
 
-            if current_ssid == target_ssid:
-                _log(f"Connected to target SSID: {target_ssid} ...")
-                self.status = 'uploading'
-                _execute_commands(self)
-                self.status = 'finished'
+               if current_ssid == target_ssid:
+                    _log(f"Connected to target SSID: {target_ssid} ...")
+                    self.status = 'uploading'
+                    _execute_commands(self)
+                    self.status = 'finished'
+                else:
+                    _log(f"Connected to a different SSID: {current_ssid} ...")
+                    self.status = 'Not_connected'
             else:
-                _log(f"Connected to a different SSID: {current_ssid} ...")
+                _log("Not Connected ... awaiting internet connection")
                 self.status = 'Not_connected'
-        else:
-            _log("Not Connected ... awaiting internet connection")
-            self.status = 'Not_connected'
-        else:
-            _log("Not at home.. awaiting internet connection...")
-            self.status = 'Not_connected'
+            else:
+                _log("Not at home.. awaiting internet connection...")
+                self.status = 'Not_connected'
 
     def _execute_commands(self):
         self.status = 'waiting'
@@ -85,9 +86,14 @@ class HomeBase(plugins.Plugin):
             ui.set('face', '(¬_¬)')
             ui.set('status', 'Transfers failed ...')
 
+
 def _run(cmd):
-    result = subprocess.run(cmd, shell=True, stdin=None, stderr=None, stdout=None, executable="/bin/bash")
+    result = subprocess.run(cmd, shell=True, stdin=None,
+                            stderr=None, stdout=None, executable="/bin/bash")
     return result.stdout.decode('utf-8').strip()
+
 
 def _log(message):
     logging.info('[Guarda] %s' % message)
+
+P
