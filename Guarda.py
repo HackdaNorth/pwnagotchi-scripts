@@ -6,7 +6,7 @@ import subprocess
 import time
 
 
-class HomeBase(plugins.Plugin):
+class Guarda(plugins.Plugin):
     __author__ = '@HackdaNorth'
     __version__ = '0.5.0'
     __license__ = 'GPL3'
