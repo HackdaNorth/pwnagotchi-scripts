@@ -8,7 +8,7 @@ import time
 
 class Guarda(plugins.Plugin):
     __author__ = '@HackdaNorth'
-    __version__ = '0.9.0'
+    __version__ = '1.0.1'
     __license__ = 'GPL3'
     __description__ = 'Transfers files to your home base, after finding the connection'
 
@@ -36,29 +36,25 @@ class Guarda(plugins.Plugin):
         command_run = self.options['command']
         if current_ssid:
             self.status = 'wifi_detected'
-              _log(f"Current SSID: {current_ssid} ...")
-
-               if current_ssid == target_ssid:
-                    _log(f"Connected to target SSID: {target_ssid} ...")
-                    self.status = 'uploading'
-                    _execute_commands(self)
-                    self.status = 'finished'
-                else:
-                    _log(f"Connected to a different SSID: {current_ssid} ...")
-                    self.status = 'Not_connected'
+            _log(f"Current SSID: {current_ssid} ...")
+            if current_ssid == target_ssid:
+                _log(f"Connected to target SSID: {target_ssid} ...")
+                self.status = 'uploading'
+                time.sleep(5)
+                _log("Running commands...")
+                process = _run(f'{self.command}')
+                time.sleep(15)
+                _log("Sleeping 15 seconds waiting for script execution to finish....")
+                process.wait()
+                self.status = 'finished'
+                _log("Commands executed...")
+                self.status = 'finished'
             else:
-                _log("Not Connected ... awaiting internet connection")
+                _log(f"Connected to a different SSID: {current_ssid} ...")
                 self.status = 'Not_connected'
-
-    def _execute_commands(self):
-        time.sleep(5)
-        _log("Running commands...")
-        process = _run(f'{self.command}')
-        time.sleep(15)
-        _log("Sleeping 15 seconds waiting for script execution to finish....")
-        process.wait()
-        self.status = 'finished'
-        _log("Commands executed...")
+        else:
+            _log("Not Connected ... awaiting internet connection")
+            self.status = 'Not_connected'
 
     def on_ui_update(self, ui):
         if self.status == 'Not_connected':
@@ -83,14 +79,10 @@ class Guarda(plugins.Plugin):
             ui.set('face', '(¬_¬)')
             ui.set('status', 'Transfers failed ...')
 
-
 def _run(cmd):
     result = subprocess.run(cmd, shell=True, stdin=None,
                             stderr=None, stdout=None, executable="/bin/bash")
     return result.stdout.decode('utf-8').strip()
 
-
 def _log(message):
     logging.info('[Guarda] %s' % message)
-
-P
