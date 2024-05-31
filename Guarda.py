@@ -7,7 +7,7 @@ import time
 
 class HomeBase(plugins.Plugin):
     __author__ = '@HackdaNorth'
-    __version__ = '0.1.0'
+    __version__ = '0.3.0'
     __license__ = 'GPL3'
     __description__ = 'Transfers files to your home base, after finding the connection'
 
@@ -18,10 +18,6 @@ class HomeBase(plugins.Plugin):
         self.current_ssid = ''
 
     def on_loaded(self):
-        for opt in ['ssid', 'password', 'minimum_signal_strength']:
-            if opt not in self.options or (opt in self.options and self.options[opt] is None):
-                logging.error(f"[Guarda] Option {opt} is not set.")
-                return
         _log("plugin loaded")
         self.ready = 1
 
@@ -29,55 +25,69 @@ class HomeBase(plugins.Plugin):
         result = subprocess.run(["/usr/sbin/iwgetid", "wlan0", "-r"], capture_output=True, text=True)
         return result.stdout.strip()
 
-    def match_ssid(self):
+    def on_internet_available(self,agent):
+       if not self.ready:
+           return
+        _log("Checking connection ...")
         current_ssid = self.get_ssid()
         target_ssid = self.options['ssid']
         if current_ssid:
             self.status = 'wifi_detected'
-            _log(f"Current SSID: {current_ssid}")
+            _log(f"Current SSID: {current_ssid} ...")
 
             if current_ssid == target_ssid:
-                _log(f"Connected to target SSID: {target_ssid}")
+                _log(f"Connected to target SSID: {target_ssid} ...")
                 self.status = 'uploading'
-                self.execute_commands()
+                _execute_commands(self)
                 self.status = 'finished'
             else:
-                _log(f"Connected to a different SSID: {current_ssid}")
+                _log(f"Connected to a different SSID: {current_ssid} ...")
                 self.status = 'Not_connected'
         else:
-            _log("Interface wlan0 is down")
+            _log("Not Connected ... awaiting internet connection")
+            self.status = 'Not_connected'
+        else:
+            _log("Not at home.. awaiting internet connection...")
             self.status = 'Not_connected'
 
-    def execute_commands(self):
+    def _execute_commands(self):
         self.status = 'waiting'
+        time.sleep(5)
         _log("Running commands...")
-        _run("sudo cp -r /root/handshakes/ /home/pi/currentBackup/ && sudo cp /root/brain.nn /home/pi/currentBackup/brainBackup/ && sudo cp /root/brain.json /home/pi/currentBackup/brainBackup/")
-        _run("cd /home/pi && scp -r -o IdentityFile=~/.ssh/id_ed22519 -P 768 /home/pi/currentBackup/* iridium@10.159.1.54:/mnt/nvme/pwnagotchi_backup/")
+        process = _run('sudo sh /home/pi/backup.sh')
+        self.status = 'uploading'
+        time.sleep(15)
+        _log("Sleeping 15 seconds waiting for script execution to finish....")
+        process.wait()
+        self.status = 'finished'
         _log("Commands executed...")
 
     def on_ui_update(self, ui):
         if self.status == 'Not_connected':
             ui.set('face', '(ﺏ__ﺏ)')
-            ui.set('status', 'Not connected to wifi....')
+            ui.set('status', 'Not connected to wifi ...')
         elif self.status == 'wifi_detected':
-            ui.set('face', '(◕‿‿◕)')
+            ui.set('face', '(ᗒᗨᗕ)')
             ui.set('status', f'Found home network at {self.network} ...')
         elif self.status == 'uploading':
             ui.set('face', '(*‿‿*)')
             ui.set('status', 'We\'re home! Uploading files mode ...')
         elif self.status == 'waiting':
-            ui.set('face', '(◕‿◕ )')
-            ui.set('status', 'Waiting for files to finish...')
+            ui.set('face', '(⊙︿⊙)')
+            ui.set('status', 'Waiting for files to finish ...')
+        elif self.status == 'checking':
+            ui.set('face', '(⌐■_■)')
+            ui.set('status', 'Checking for wifi ...')
         elif self.status == 'finished':
-            ui.set('face', '(ᵔ◡◡ᵔ)')
-            ui.set('status', 'All Transfers are finished!!')
-
-    def on_epoch(self, agent, epoch, epoch_data):
-        self.match_ssid()
+            ui.set('face', '( ﾟДﾟ)b')
+            ui.set('status', 'All Transfers are finished !!!')
+        elif self.status == 'failed':
+            ui.set('face', '(¬_¬)')
+            ui.set('status', 'Transfers failed ...')
 
 def _run(cmd):
-    result = subprocess.run(cmd, shell=True, stdin=None, stderr=None, stdout=subprocess.PIPE, executable="/bin/bash")
+    result = subprocess.run(cmd, shell=True, stdin=None, stderr=None, stdout=None, executable="/bin/bash")
     return result.stdout.decode('utf-8').strip()
 
 def _log(message):
-    logging.info('[home_base] %s' % message)
+    logging.info('[Guarda] %s' % message)
