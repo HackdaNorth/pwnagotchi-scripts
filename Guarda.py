@@ -8,7 +8,7 @@ import time
 
 class Guarda(plugins.Plugin):
     __author__ = '@HackdaNorth'
-    __version__ = '0.5.0'
+    __version__ = '0.6.0'
     __license__ = 'GPL3'
     __description__ = 'Transfers files to your home base, after finding the connection'
 
@@ -46,9 +46,6 @@ class Guarda(plugins.Plugin):
                     self.status = 'Not_connected'
             else:
                 _log("Not Connected ... awaiting internet connection")
-                self.status = 'Not_connected'
-            else:
-                _log("Not at home.. awaiting internet connection...")
                 self.status = 'Not_connected'
 
     def _execute_commands(self):
